@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  # Service No 1 - Postgres
+  postgres:
+    image: aintgriz/centos6-postgres96:0.1
+    ports:
+      - '6432:5432'
+    environment:
+      POSTGRES_USER: 'rico'
+      POSTGRES_PASSWORD: 'password'
+      POSTGRES_DB: 'accounts'
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d/
+
+  # Service No 2 - Visualizer - Free Visualizer for Docker
+  visualizer:
+    image: dockersamples/visualizer:stable
+    ports:
+      - "8080:8080"
+    # Volumes key, giving the visualizer access to the host’s socket file for Docker
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    deploy:
+      placement:
+        # placement key - ensuring that this service only ever runs on a swarm manager
+        constraints: [node.role == manager]
+    networks:
+      - webnet
+
+# docker-compose -f _BAK_docker-compose.yml up -d
+# docker-compose stop
