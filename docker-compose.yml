@@ -25,6 +25,7 @@ services:
       placement:
         # placement key - ensuring that this service only ever runs on a swarm manager
         constraints: [node.role == manager]
+    # Define the webnet network with the default settings (which is a load-balanced overlay network).
     networks:
       - webnet
 
