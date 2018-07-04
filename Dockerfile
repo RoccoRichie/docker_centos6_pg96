@@ -55,4 +55,4 @@ RUN chmod +x start_postgres.sh
 
 EXPOSE 5432
 
-CMD /bin/bash start_postgres.sh
+CMD ["/bin/bash", "health_check.sh"]
