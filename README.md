@@ -13,17 +13,17 @@ This will create an image with a TAG --> local/centos6-baseimage
     docker run --rm -it local/centos-pg96:latest bash
 
 Alternatively, get pre-built image from docker hub
-Go to the Tags page and find the latest release (e.g. Tag Name 0.3)
+Go to the Tags page and find the latest release (e.g. Tag Name 0.4)
 
     https://hub.docker.com/r/aintgriz/centos6-postgres96/tags/
 
 {A.1}   Use docker pull with the latest tag:
 
-    docker pull aintgriz/centos6-postgres96:0.3
+    docker pull aintgriz/centos6-postgres96:0.4
 
 {B.1}   To Run interactive shell into this pulled image:
 
-    docker run --rm -it aintgriz/centos6-postgres96:0.3 bash
+    docker run --rm -it aintgriz/centos6-postgres96:0.4 bash
 
 You enter into the working directory ha_postgres, which contains scripts to
 * Start rsyslog service - for collection of logging

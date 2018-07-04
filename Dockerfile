@@ -54,3 +54,5 @@ RUN chmod +x info_db.sh
 RUN chmod +x start_postgres.sh
 
 EXPOSE 5432
+
+CMD /bin/bash start_postgres.sh
