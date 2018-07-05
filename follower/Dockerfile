@@ -63,5 +63,11 @@ CMD ["/bin/bash", "health_check.sh"]
 # docker tag local/pg96_cos6_ha_follower:latest aintgriz/pg96_cos6_ha_follower:0.1
 # PUSH
 # docker push aintgriz/pg96_cos6_ha_follower:0.1
+# On Local host make a docker volume:
+# docker volume create pg_master_data
+# Inspect the Volume to get the path
+# docker volume inspect pg_master_data
+# Path to the Data Directory is:
+# /var/lib/docker/volumes/pg_follower_data/_data
 # RUN:
-# docker run --rm -v /var/tmp/docker/pg96/follower/data:/var/lib/pgsql/9.6/data -it aintgriz/pg96_cos6_ha_follower:0.1 bash
+# docker run --rm -it --name ha_follower --mount source=pg_follower_data,target=/var/lib/pgsql/9.6/data aintgriz/pg96_cos6_ha_follower:0.1 bash

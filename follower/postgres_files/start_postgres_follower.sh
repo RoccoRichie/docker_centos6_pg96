@@ -5,10 +5,10 @@ _ECHO=/bin/echo
 _SERVICE="/sbin/service"
 _UNIX_LOGGER="/usr/bin/logger"
 
-APP_ID="postgres_ha"
-HA_DIR=/ha_postgres
-NEW_CONF=${HA_DIR}/follower_postgres.conf
-NEW_HBA=${HA_DIR}/follower_hba.conf
+APP_ID="PG_HA_FOLLOWER"
+FOLLOWER_DIR=/postgres_follower
+NEW_CONF=${FOLLOWER_DIR}/follower_postgres.conf
+NEW_HBA=${FOLLOWER_DIR}/follower_hba.conf
 PGCONF=/var/lib/pgsql/9.6/data/postgresql.conf
 PGDATA=/var/lib/pgsql/9.6/data/
 PGHBA=/var/lib/pgsql/9.6/data/pg_hba.conf
@@ -63,7 +63,7 @@ initialise_db()
     logger info "Attempting to initdb the service PostgreSQL"
     ${_SERVICE} ${PG_SERVICE} initdb >/dev/null 2>&1
     RETVAL=$?
-    if [[ ${RETVAL} -ne 0 ]] ;
+    if [[ ${RETVAL} -ne 0 ]];
     then
         logger error "Failed to initialise PostgreSQL service"
     else

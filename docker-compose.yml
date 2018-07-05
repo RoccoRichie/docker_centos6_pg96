@@ -3,16 +3,18 @@ version: '3'
 services:
   # Service No 1 - Postgres
   postgres_master:
-    image: aintgriz/centos6-postgres96:0.4
+    image: aintgriz/pg96_cos6_ha_leader:0.1
     ports:
       - '6432:5432'
-#    volumes:
-#      - "/var/tmp/docker/pg96/master/data:/var/lib/pgsql/9.6/data"
+    volumes:
+      - "/var/tmp/docker/pg96/leader/data:/var/lib/pgsql/9.6/data:z"
   # Service No 2 - Postgres
   postgres_slave:
-    image: aintgriz/centos6-postgres96:0.4
+    image: aintgriz/pg96_cos6_ha_follower:0.1
     ports:
       - '7432:5432'
+    volumes:
+      - "/var/tmp/docker/pg96/follower/data:/var/lib/pgsql/9.6/data:z"
   # Service No 3 - Visualiser
   visualizer:
     image: dockersamples/visualizer:stable
