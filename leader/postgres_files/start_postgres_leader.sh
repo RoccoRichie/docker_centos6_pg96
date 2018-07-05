@@ -7,8 +7,8 @@ _UNIX_LOGGER="/usr/bin/logger"
 
 APP_ID="postgres_ha"
 HA_DIR=/ha_postgres
-NEW_CONF=${HA_DIR}/ha_postgres.conf
-NEW_HBA=${HA_DIR}/ha_hba.conf
+NEW_CONF=${HA_DIR}/leader_postgres.conf
+NEW_HBA=${HA_DIR}/leader_hba.conf
 PGCONF=/var/lib/pgsql/9.6/data/postgresql.conf
 PGDATA=/var/lib/pgsql/9.6/data/
 PGHBA=/var/lib/pgsql/9.6/data/pg_hba.conf

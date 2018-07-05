@@ -39,20 +39,29 @@ RUN mkdir -p "$PGDATA" && chown -R postgres:postgres "$PGDATA" && chmod 777 "$PG
 VOLUME /var/lib/pgsql/9.6/data/
 
 # Set the working directory to /app
-WORKDIR /ha_postgres
+WORKDIR /postgres_follower
 
 # Copy the current directory contents into the container at /app
-ADD /postgres_files/ /ha_postgres
+ADD /postgres_files/ /postgres_follower
 
 # Append custom configs params into default postgresql.conf
-RUN chown postgres:postgres ha_hba.conf
-RUN chown postgres:postgres ha_postgres.conf
+RUN chown postgres:postgres follower_hba.conf
+RUN chown postgres:postgres follower_postgres.conf
 
 RUN chmod +x create_db.sh
 RUN chmod +x generate_load.sh
 RUN chmod +x info_db.sh
-RUN chmod +x start_postgres.sh
+RUN chmod +x start_postgres_follower.sh
 
-EXPOSE 5432
+EXPOSE 6432
 
 CMD ["/bin/bash", "health_check.sh"]
+
+# BUILD:
+# docker build --rm -t local/pg96_cos6_ha_follower .
+# TAG
+# docker tag local/pg96_cos6_ha_follower:latest aintgriz/pg96_cos6_ha_follower:0.1
+# PUSH
+# docker push aintgriz/pg96_cos6_ha_follower:0.1
+# RUN:
+# docker run --rm -v /var/tmp/docker/pg96/follower/data:/var/lib/pgsql/9.6/data -it aintgriz/pg96_cos6_ha_follower:0.1 bash
