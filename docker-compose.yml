@@ -2,19 +2,21 @@ version: '3'
 
 services:
   # Service No 1 - Postgres
-  postgres_master:
-    image: aintgriz/pg96_cos6_ha_leader:0.1
+  postgres_leader:
+    image: aintgriz/pg96_cos6_ha_leader:0.2
     ports:
       - '6432:5432'
     volumes:
-      - "/var/tmp/docker/pg96/leader/data:/var/lib/pgsql/9.6/data:z"
+      - data_leader:/var/lib/pgsql/9.6/data/
+
   # Service No 2 - Postgres
-  postgres_slave:
-    image: aintgriz/pg96_cos6_ha_follower:0.1
+  postgres_follower:
+    image: aintgriz/pg96_cos6_ha_follower:0.2
     ports:
       - '7432:5432'
     volumes:
-      - "/var/tmp/docker/pg96/follower/data:/var/lib/pgsql/9.6/data:z"
+      - data_follower:/var/lib/pgsql/9.6/data/
+
   # Service No 3 - Visualiser
   visualizer:
     image: dockersamples/visualizer:stable
@@ -27,5 +29,13 @@ services:
         constraints: [node.role == manager]
     networks:
       - webnet
+
 networks:
   webnet:
+
+volumes:
+    # Data Storage 01
+    data_leader:
+
+    # Data Storage 02
+    data_follower:
