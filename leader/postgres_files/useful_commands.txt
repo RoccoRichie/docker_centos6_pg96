@@ -38,6 +38,9 @@ su - postgres -c "psql -U postgres -c 'SELECT version();'"
 # PSQL Query - select all dbs
 su - postgres -c "psql -U postgres -c '\l'"
 
+# PSQL Query - Show all users
+su - postgres -c "psql -U postgres -c '\du'"
+
 # PSQL Query - select numbers of rows
 su - postgres -c "psql -U postgres -d pgloader_db -c\
                   'SELECT relname AS \"Table_Name\", n_live_tup as \"Row_Count\"
