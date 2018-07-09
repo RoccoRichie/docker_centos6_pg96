@@ -48,10 +48,8 @@ ADD /postgres_files/ /postgres_follower
 RUN chown postgres:postgres follower_hba.conf
 RUN chown postgres:postgres follower_postgres.conf
 
-RUN chmod +x create_db.sh
-RUN chmod +x generate_load.sh
-RUN chmod +x info_db.sh
-RUN chmod +x start_postgres_follower.sh
+RUN chmod +x create_db.sh create_replicator_role.sh generate_load.sh
+RUN chmod +x health_check.sh info_db.sh start_postgres_follower.sh
 
 CMD ["/bin/bash", "health_check.sh"]
 
