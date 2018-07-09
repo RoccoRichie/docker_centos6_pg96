@@ -6,7 +6,7 @@ ENV container docker
 VOLUME [ "/sys/fs/cgroup" ]
 
 RUN yum -y install httpd; service httpd start; yum clean all
-EXPOSE 80
+EXPOSE 80 22 873 6432
 
 CMD ["/usr/sbin/init"]
 
@@ -19,7 +19,7 @@ ENV PG_SHA256 b97952e3af02dc1e446f9c4188ff53021cc0eed7ed96f254ae6daf968c443e2e
 
 # Install additional Software
 # Issue with installing vim, ignore checksum
-RUN yum -y install vim rsyslog > /dev/null 2>&1; yum clean all
+RUN yum -y install vim rsyslog rsync > /dev/null 2>&1; yum clean all
 
 # Start rsyslog
 RUN service rsyslog start
@@ -52,8 +52,6 @@ RUN chmod +x create_db.sh
 RUN chmod +x generate_load.sh
 RUN chmod +x info_db.sh
 RUN chmod +x start_postgres_follower.sh
-
-EXPOSE 6432
 
 CMD ["/bin/bash", "health_check.sh"]
 

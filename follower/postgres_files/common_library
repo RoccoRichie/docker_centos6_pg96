@@ -4,8 +4,8 @@ _ECHO=/bin/echo
 _PSQL=/usr/bin/psql
 
 PG_USER=postgres
-LOG_DIR=/var/tmp/pg_loader/
-LOG_FILE=postgres_loader.log
+LOG_DIR=/postgres_follower/
+LOG_FILE=postgres_ha_follower.log
 DB=pgloader_db
 
 #*****************************************************************************#
@@ -36,10 +36,10 @@ logRotate()
 infoLog()
 {
     LDATE=$(date +[%m%d%Y%T])
-    TAG="vxPGresize"
+    TAG="PostgreSQL_HA"
     msg=$1
     logger -s ${LOG_FILE} ${msg}
-    $_ECHO "$TAG $LDATE $msg" &>>$LOG_FILE
+    $_ECHO "$TAG $LDATE $msg" &>>${LOG_DIR}/${LOG_FILE}
 }
 
 #*****************************************************************************#

@@ -8,6 +8,7 @@ services:
       - '6432:5432'
     volumes:
       - data_leader:/var/lib/pgsql/9.6/data/
+      - shared_fs_wals:/shared_wals
 
   # Service No 2 - Postgres
   postgres_follower:
@@ -16,6 +17,7 @@ services:
       - '7432:5432'
     volumes:
       - data_follower:/var/lib/pgsql/9.6/data/
+      - shared_fs_wals:/shared_wals
 
   # Service No 3 - Visualiser
   visualizer:
@@ -36,6 +38,7 @@ networks:
 volumes:
     # Data Storage 01
     data_leader:
-
     # Data Storage 02
     data_follower:
+    # Data Storage 03
+    shared_fs_wals:

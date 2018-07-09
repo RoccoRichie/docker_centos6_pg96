@@ -3,7 +3,7 @@
 source common_library
 
 #**************************************************************************
-# This function creates the <vxfs_test_db> db, if database doesn't exists
+# This function creates the <pgloader_db> db, if database doesn't exists
 #**************************************************************************
 create_db()
 {
