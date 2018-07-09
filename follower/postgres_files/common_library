@@ -9,9 +9,9 @@ LOG_FILE=postgres_ha_follower.log
 DB=pgloader_db
 
 #*****************************************************************************#
-#This function creates a log file in the specified location, if the required
-#log file doesn't exists. Otherwise updates the existing log file with info
-#and error details.
+# This function creates a log file in the specified location, if the required
+# log file doesn't exists. Otherwise updates the existing log file with info
+# details.
 #*****************************************************************************#
 logRotate()
 {

@@ -22,7 +22,6 @@ do
    esac
 done
 
-logRotate
 infoLog "Row List BEFORE Applying Load"
 get_row_list
 time apply_load
