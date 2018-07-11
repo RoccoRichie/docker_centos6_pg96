@@ -3,21 +3,23 @@ version: '3'
 services:
   # Service No 1 - Postgres
   postgres_leader:
-    image: aintgriz/pg96_cos6_ha_leader:0.3
+    image: aintgriz/pg96_cos6_ha_leader:0.4
     ports:
       - '6432:5432'
     volumes:
       - data_leader:/var/lib/pgsql/9.6/data/
       - shared_fs_wals:/shared_wals
+      - shared_backup_dir:/backup_dir
 
   # Service No 2 - Postgres
   postgres_follower:
-    image: aintgriz/pg96_cos6_ha_follower:0.3
+    image: aintgriz/pg96_cos6_ha_follower:0.4
     ports:
       - '7432:5432'
     volumes:
       - data_follower:/var/lib/pgsql/9.6/data/
       - shared_fs_wals:/shared_wals
+      - shared_backup_dir:/backup_dir
 
   # Service No 3 - Visualiser
   visualizer:
@@ -35,6 +37,8 @@ services:
 networks:
   webnet:
 
+# docker volume will create the following volumes on the
+# host that deploys the docker-compose file
 volumes:
     # Data Storage 01
     data_leader:
@@ -42,3 +46,5 @@ volumes:
     data_follower:
     # Data Storage 03
     shared_fs_wals:
+    # Data Storage 04
+    shared_backup_dir:

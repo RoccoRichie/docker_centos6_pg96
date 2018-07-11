@@ -1,0 +1,95 @@
+
+### LEADER ###
+
+### BUILD ###
+cd dir into leader:
+cd Centos6_Postgres96_HA/leader
+docker build --rm -t local/pg96_cos6_ha_leader .
+
+### TAG ###
+docker tag local/pg96_cos6_ha_follower:latest aintgriz/pg96_cos6_ha_leader:0.4
+
+## PUSH ###
+docker push aintgriz/pg96_cos6_ha_leader:0.4
+
+### FOLLOWER ###
+
+### BUILD ###
+cd dir into follower:
+cd Centos6_Postgres96_HA/follower
+docker build --rm -t local/pg96_cos6_ha_follower .
+
+### TAG ###
+docker tag local/pg96_cos6_ha_follower:latest aintgriz/pg96_cos6_ha_follower:0.4
+
+## PUSH ###
+docker push aintgriz/pg96_cos6_ha_follower:0.4
+
+
+### STACK ###
+### Deploy the 2 instance of Postgres and their volumes ###
+
+### DEPLOY ###
+Change dir to the location of the docker-compose.yml
+cd Centos6_Postgres96_HA
+The stack name here is HA
+docker stack deploy -c docker-compose.yml HA
+
+
+### VOLUMES ###
+docker volume ls
+
+### DOCKER VOLUME PATHS TO LOCAL HOST ###
+docker volume inspect HA_data_leader
+---> /var/lib/docker/volumes/HA_data_leader/_data
+docker volume inspect HA_data_follower
+---> /var/lib/docker/volumes/HA_data_follower/_data
+
+### INSPECT THE STACK ###
+docker stack ps HA
+
+Once the Stack is Running:
+
+### LOG ONTO LEADER & FOLLOWER CONTAINERS ###
+docker exec -ti $(docker ps -qf name=HA_postgres_leader) bash
+docker exec -ti $/docker ps -qf name=HA_postgres_follower/ bash
+
+
+DOCKER CONTAINER IP ADDRESSES
+Get the Container id for Leader & Follower
+docker container ls
+User the Container ID for next command:
+
+# Leader:
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 184c3b802fd7
+LEADER IP: 10.0.0.4 (10.255.0.22)
+
+docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' 581ff890b657
+FOLLOWER IP: 10.0.0.6 (10.255.0.24)
+
+OR
+
+docker inspect -f '{{.Name}} - {{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $(docker ps -aq) | grep HA
+/HA_visualizer.1.8yy84h783lie9fwar31ws7cod - 10.0.1.410.255.0.26
+/HA_postgres_follower.1.5gzvvo8t9hqi1h956vondvlby - 10.0.0.610.255.0.24
+/HA_postgres_leader.1.9s9l61wiaqx8aojit2pney4kn - 10.0.0.410.255.0.22
+
+
+### LOG INTO LEADER & FOLLOWER ###
+# Leader:
+docker exec -ti $(docker ps -qf name=HA_postgres_leader) bash
+# Follower:
+docker exec -ti $(docker ps -qf name=HA_postgres_follower) bash
+
+
+# echo "Port 22" >> /etc/ssh/sshd_config; echo "PermitRootLogin without-password" >> /etc/ssh/sshd_config
+
+
+### CLEAN UP ###
+REMOVE THE STACK
+docker stack ps HA
+
+REMOVE ALL IMAGES, CONTAINERS & VOLUMES
+docker image rm -f $(docker image ls -a -q)
+docker container rm $(docker container ls -a -q)
+docker volume rm $(docker volume ls)

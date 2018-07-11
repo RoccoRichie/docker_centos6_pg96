@@ -5,8 +5,13 @@ ENV container docker
 
 VOLUME [ "/sys/fs/cgroup" ]
 
-RUN yum -y install httpd; service httpd start; yum clean all
-EXPOSE 80 22 873 6432
+# Open Ports in the Container
+EXPOSE 22 80 873 5432
+
+# Install additional Software
+# Issue with installing vim $ openssh, ignore checksum
+RUN yum -y install httpd; service httpd start
+RUN yum -y install vim rsyslog rsync tar > /dev/null 2>&1; yum clean all
 
 CMD ["/usr/sbin/init"]
 
@@ -16,13 +21,6 @@ ENV LANG en_US.utf8
 ENV PG_MAJOR 9.6
 ENV PG_VERSION 9.6.9
 ENV PG_SHA256 b97952e3af02dc1e446f9c4188ff53021cc0eed7ed96f254ae6daf968c443e2e
-
-# Install additional Software
-# Issue with installing vim, ignore checksum
-RUN yum -y install vim rsyslog rsync > /dev/null 2>&1; yum clean all
-
-# Start rsyslog
-RUN service rsyslog start
 
 # Download the Required Postgres RPMs:
 # Get the pgdg package which contains the PostgreSQL 96 rpms for Centos6:
@@ -42,28 +40,15 @@ VOLUME /var/lib/pgsql/9.6/data/
 WORKDIR /postgres_follower
 
 # Copy the current directory contents into the container at /app
-ADD /postgres_files/ /postgres_follower
+ADD /postinstall_files/ /postgres_follower
 
 # Append custom configs params into default postgresql.conf
 RUN chown postgres:postgres follower_hba.conf
 RUN chown postgres:postgres follower_postgres.conf
+RUN chown postgres:postgres recovery.conf
 
 RUN chmod +x create_db.sh create_replicator_role.sh generate_load.sh
-RUN chmod +x health_check.sh info_db.sh start_postgres_follower.sh
+RUN chmod +x health_check.sh info_db.sh start_additional_services.sh
+RUN chmod +x start_postgres_follower.sh
 
 CMD ["/bin/bash", "health_check.sh"]
-
-# BUILD:
-# docker build --rm -t local/pg96_cos6_ha_follower .
-# TAG
-# docker tag local/pg96_cos6_ha_follower:latest aintgriz/pg96_cos6_ha_follower:0.1
-# PUSH
-# docker push aintgriz/pg96_cos6_ha_follower:0.1
-# On Local host make a docker volume:
-# docker volume create pg_master_data
-# Inspect the Volume to get the path
-# docker volume inspect pg_master_data
-# Path to the Data Directory is:
-# /var/lib/docker/volumes/pg_follower_data/_data
-# RUN:
-# docker run --rm -it --name ha_follower --mount source=pg_follower_data,target=/var/lib/pgsql/9.6/data aintgriz/pg96_cos6_ha_follower:0.1 bash
