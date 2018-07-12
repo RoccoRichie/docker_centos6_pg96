@@ -1,5 +1,8 @@
 #!/bin/bash
 
+HOST_FOLLOWER=$1
+echo ${HOST_FOLLOWER}
+
 _CAT=/bin/cat
 _CHOWN=/bin/chown
 _ECHO=/bin/echo
@@ -37,27 +40,40 @@ logger()
     fi
 }
 
+check_for_argument()
+{
+    if [ -z ${HOST_FOLLOWER} ]; then
+        logger error "Leader Host must be provided"
+        logger error "Execute script by passing ip address of Host"
+        logger debug "E.G. --> $0 10.0.0.6"
+        exit 1
+    fi
+}
+
+check_return_value()
+{
+    if [ $? -eq 0 ];  then
+        logger info "Step: $1 finished SUCCESSFULLY"
+    else
+        logger error "Step: $1 FAILED..."
+    fi
+}
+
 update_conf_files()
 {
     logger info "Attempting to append ${PGCONF} with ${NEW_CONF}"
     ${_CAT} ${NEW_CONF} >> ${PGCONF}
-    RETVAL=$?
-    if [[ ${RETVAL} -ne 0 ]];
-    then
-        logger error "Failed to append ${PGCONF} with ${NEW_CONF}"
-    else
-        logger info "Successfully appended ${PGCONF} with ${NEW_CONF}"
-    fi
+    check_return_value "Attempting to append ${PGCONF} with ${NEW_CONF}"
 
     logger info "Attempting to replace ${PGHBA} with ${NEW_HBA}"
     ${_CAT} ${NEW_HBA} > ${PGHBA}
-    RETVAL=$?
-    if [[ ${RETVAL} -ne 0 ]];
-    then
-        logger error "Failed to replace ${PGHBA} with ${NEW_HBA}"
-    else
-        logger info "Successfully replaced ${PGHBA} with ${NEW_HBA}"
-    fi
+    check_return_value "Attempting to replace ${PGHBA} with ${NEW_HBA}"
+
+    logger info "Attempting to add follower Host ${HOST_FOLLOWER} to ${PGHBA}"
+    ${_ECHO} "host     replication     replicator      ${HOST_FOLLOWER}/32\
+                 trust" >> ${PGHBA}
+    check_return_value "Attempting to add follower Host ${HOST_FOLLOWER} \
+    to ${PGHBA}"
 }
 
 initialise_db()
@@ -86,8 +102,10 @@ start_postgres()
     if [[ ${RETVAL} -ne 0 ]];
     then
         logger error "Failed to start PostgreSQL service"
-        logger debug "Investigate the log file:: cat /var/lib/pgsql/9.6/pgstartup.log"
-        logger debug "Investigate the log file:: cat /var/lib/pgsql/9.6/data/pg_log/postgresql-"
+        logger debug "Investigate the log file:: cat \
+        /var/lib/pgsql/9.6/pgstartup.log"
+        logger debug "Investigate the log file:: cat \
+        /var/lib/pgsql/9.6/data/pg_log/postgresql-"
     else
         logger info "PostgreSQL service was started."
     fi
@@ -111,28 +129,22 @@ start_rsyslog()
 
 change_ownership_sharedfs()
 {
-    logger info "Attempting to change ownership of ${SHARED_FS_WALS} directory to postgres"
+    logger info "Attempting to change ownership of ${SHARED_FS_WALS} directory\
+     to postgres"
     ${_CHOWN} postgres:postgres ${SHARED_FS_WALS}
-    RETVAL=$?
-    if [[ ${RETVAL} -ne 0 ]];
-    then
-        logger error "Failed to change ownership of ${SHARED_FS_WALS} directory to postgres"
-    else
-        logger info "Successfully changed ownership of ${SHARED_FS_WALS} directory to postgres"
-    fi
+    check_return_value "Attempting to change ownership of ${SHARED_FS_WALS} \
+    directory to postgres"
 
+    logger info "Attempting to change ownership of ${SHARED_FS_BACKUP} \
+    directory to postgres"
     ${_CHOWN} postgres:postgres ${SHARED_FS_BACKUP}
-    RETVAL=$?
-    if [[ ${RETVAL} -ne 0 ]];
-    then
-        logger error "Failed to change ownership of ${SHARED_FS_BACKUP} directory to postgres"
-    else
-        logger info "Successfully changed ownership of ${SHARED_FS_BACKUP} directory to postgres"
-    fi
+    check_return_value "Attempting to change ownership of ${SHARED_FS_BACKUP} \
+    directory to postgres"
 }
 
 #MAIN
+check_for_argument
 start_rsyslog
 change_ownership_sharedfs
 start_postgres
-source create_replicator_role.sh
+source replicator_role_create.sh

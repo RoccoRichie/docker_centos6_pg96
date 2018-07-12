@@ -47,7 +47,6 @@ RUN chown postgres:postgres leader_hba.conf
 RUN chown postgres:postgres leader_postgres.conf
 
 RUN chmod +x create_db.sh create_replicator_role.sh generate_load.sh
-RUN chmod +x health_check.sh info_db.sh start_additional_services.sh
-RUN chmod +x start_postgres_leader.sh
+RUN chmod +x health_check.sh info_db.sh start_postgres_leader.sh tidy_up.sh
 
 CMD ["/bin/bash", "health_check.sh"]

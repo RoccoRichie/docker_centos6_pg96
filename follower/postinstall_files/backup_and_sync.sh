@@ -1,15 +1,18 @@
 #!/bin/bash
 
 HOST_LEADER=$1
+echo ${HOST_LEADER}
 
 _CAT=/bin/cat
+_CHMOD=/bin/chmod
 _CHOWN=/bin/chown
-_CP="/bin/cp -i"
+_CP="/bin/cp"
 _ECHO=/bin/echo
 _PG_BAK=/usr/bin/pg_basebackup
-_RMF="/bin/ -rf"
+_RMF="/bin/rm -rf"
 _SERVICE="/sbin/service"
 _SU=/bin/su
+_TAR=/bin/tar
 _UNIX_LOGGER="/usr/bin/logger"
 
 APP_ID="PG_BUS"
@@ -46,16 +49,15 @@ logger()
 
 check_for_argument()
 {
-    if [ $# -eq 0 ]
-      then
+    if [ -z ${HOST_LEADER} ]; then
         logger error "Leader Host must be provided"
         logger error "Execute script by passing ip address of Host"
-        logger debug "E.G. ./$0 10.0.0.4"
+        logger debug "E.G. --> $0 10.0.0.4"
         exit 1
     fi
 }
 
-check_exit_code()
+check_return_value()
 {
     if [ $? -eq 0 ];  then
         logger info "Step: $1 finished SUCCESSFULLY"
@@ -64,19 +66,35 @@ check_exit_code()
     fi
 }
 
+start_rsyslog()
+{
+    logger info "Attempting to START the service rsyslog"
+    ${_SERVICE} rsyslog start
+    RETVAL=$?
+    if [[ ${RETVAL} -ne 0 ]];
+    then
+        logger error "Failed to start rsyslog service"
+    else
+        ${_ECHO} "" > /var/log/messages
+        logger info "rsyslog service was started"
+        logger debug "Log messages can now be viewed in /var/log/messages"
+
+    fi
+}
+
 start_stop_postgres()
 {
     logger info "Attempting to $1 the service PostgreSQL"
     ${_SERVICE} ${PG_SERVICE} $1 >/dev/null 2>&1
-    check_exit_code "Attempting to $1 the service PostgreSQL"
+    check_return_value "Attempting to $1 the service PostgreSQL"
 }
 
 backup_leader()
 {
     logger info "Attempting to backup PostgreSQL Leader as a tar file"
     ${_SU} - ${PG_USER} -c "${_PG_BAK} -h ${HOST_LEADER} -U ${PG_REPLICATOR} \
-    -Ft -x -D - > /${SHARED_FS_BACKUP}/leader_bkup.tar"
-    check_exit_code "Attempting to backup PostgreSQL Leader"
+    -Ft -x -D - > ${SHARED_FS_BACKUP}/leader_bkup.tar"
+    check_return_value "Attempting to backup PostgreSQL Leader"
 }
 
 
@@ -84,46 +102,47 @@ clear_follower_data()
 {
     logger info "Attempting to clear FOLLOWER ${PGDATA}"
     ${_RMF} ${PGDATA}/*
-    check_exit_code "Attempting to clear FOLLOWER ${PGDATA}"
+    check_return_value "Attempting to clear FOLLOWER ${PGDATA}"
 }
 
 unpack_backup()
 {
     logger info "Attempting to unpack Leader backup to FOLLOWER ${PGDATA}"
-
-    check_exit_code "Attempting to unpack Leader backup to FOLLOWER ${PGDATA}"
+    ${_SU} - ${PG_USER} -c "${_TAR} x -v -C ${PGDATA} -f \
+    ${SHARED_FS_BACKUP}/leader_bkup.tar" >/dev/null 2>&1
+    check_return_value "Attempting to unpack Leader backup to FOLLOWER ${PGDATA}"
 }
 
 update_recovery_conf_with_Host()
 {
     logger info "Attempting to update ${RECOVER_CONF} with ${HOST_LEADER}"
-    echo "primary_conninfo = 'host=${HOST_LEADER} user={PG_REPLICATOR}'" \
+    echo "primary_conninfo = 'host=${HOST_LEADER} user=${PG_REPLICATOR}'" \
     >> ${RECOVER_CONF}
-    check_exit_code "Attempting to update ${RECOVER_CONF} with ${HOST_LEADER}"
+    check_return_value "Attempting to update ${RECOVER_CONF} with ${HOST_LEADER}"
 }
 
 copy_recovery_file()
 {
     logger info "Attempting to copy ${RECOVER_CONF} to ${PGDATA}"
     ${_CP} ${RECOVER_CONF} ${PGDATA}
-    check_exit_code "Attempting to copy ${RECOVER_CONF} to ${PGDATA}"
+    check_return_value "Attempting to copy ${RECOVER_CONF} to ${PGDATA}"
+}
+
+change_follower_permissions()
+{
+    logger info "Attempting to change permissions to 700 of ${PGDATA}"
+    ${_CHMOD} 700 ${PGDATA}
+    check_return_value "Attempting to change permissions to 700 of ${PGDATA}"
 }
 
 #MAIN
-
-# TODO: Stop Postgres
-# TODO: PG_BASE_BACKUP to shared fs --> /backup_dir
-# TODO: Remove or Move existing files from follower $PGDATA
-# TODO: sync the files into follower $PGDATA
-# TODO: copy the recovery.conf to follower $PGDATA
-# TODO: check the recovery command - rsync maybe better than cp
-# TODO: check if we need hot_standby = on in $PGDATA/postgresql.conf
-# TODO: Start Postgres
+start_rsyslog
 check_for_argument
 start_stop_postgres stop
-#backup_leader
-#clear_follower_data
-#sync_follower
-#insert_recovery_file
-#reconfig_follower
-#start_stop_postgres start
+backup_leader
+clear_follower_data
+unpack_backup
+update_recovery_conf_with_Host
+copy_recovery_file
+change_follower_permissions
+start_stop_postgres start
