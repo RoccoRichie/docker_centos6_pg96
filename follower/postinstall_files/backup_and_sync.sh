@@ -17,6 +17,8 @@ _UNIX_LOGGER="/usr/bin/logger"
 
 APP_ID="PG_BUS"
 FOLLOWER_DIR=/postgres_follower
+NEW_CONF=${FOLLOWER_DIR}/follower_postgres.conf
+NEW_HBA=${FOLLOWER_DIR}/follower_hba.conf
 PGCONF=/var/lib/pgsql/9.6/data/postgresql.conf
 PGDATA=/var/lib/pgsql/9.6/data/
 PGHBA=/var/lib/pgsql/9.6/data/pg_hba.conf
@@ -111,6 +113,17 @@ unpack_backup()
     ${_SU} - ${PG_USER} -c "${_TAR} x -v -C ${PGDATA} -f \
     ${SHARED_FS_BACKUP}/leader_bkup.tar" >/dev/null 2>&1
     check_return_value "Attempting to unpack Leader backup to FOLLOWER ${PGDATA}"
+}
+
+update_conf_files()
+{
+    logger info "Attempting to append ${PGCONF} with ${NEW_CONF}"
+    ${_CAT} ${NEW_CONF} >> ${PGCONF}
+    check_return_value "Attempting to append ${PGCONF} with ${NEW_CONF}"
+
+    logger info "Attempting to replace ${PGHBA} with ${NEW_HBA}"
+    ${_CAT} ${NEW_HBA} > ${PGHBA}
+    check_return_value "Attempting to replace ${PGHBA} with ${NEW_HBA}"
 }
 
 update_recovery_conf_with_Host()

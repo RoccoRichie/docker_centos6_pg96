@@ -37,27 +37,24 @@ logger()
     fi
 }
 
+check_return_value()
+{
+    if [ $? -eq 0 ];  then
+        logger info "Step: $1 finished SUCCESSFULLY"
+    else
+        logger error "Step: $1 FAILED..."
+    fi
+}
+
 update_conf_files()
 {
     logger info "Attempting to append ${PGCONF} with ${NEW_CONF}"
     ${_CAT} ${NEW_CONF} >> ${PGCONF}
-    RETVAL=$?
-    if [[ ${RETVAL} -ne 0 ]];
-    then
-        logger error "Failed to append ${PGCONF} with ${NEW_CONF}"
-    else
-        logger info "Successfully appended ${PGCONF} with ${NEW_CONF}"
-    fi
+    check_return_value "Attempting to append ${PGCONF} with ${NEW_CONF}"
 
     logger info "Attempting to replace ${PGHBA} with ${NEW_HBA}"
     ${_CAT} ${NEW_HBA} > ${PGHBA}
-    RETVAL=$?
-    if [[ ${RETVAL} -ne 0 ]];
-    then
-        logger error "Failed to replace ${PGHBA} with ${NEW_HBA}"
-    else
-        logger info "Successfully replaced ${PGHBA} with ${NEW_HBA}"
-    fi
+    check_return_value "Attempting to replace ${PGHBA} with ${NEW_HBA}"
 }
 
 initialise_db()
@@ -86,8 +83,10 @@ start_postgres()
     if [[ ${RETVAL} -ne 0 ]];
     then
         logger error "Failed to start PostgreSQL service"
-        logger debug "Investigate the log file:: cat /var/lib/pgsql/9.6/pgstartup.log"
-        logger debug "Investigate the log file:: cat /var/lib/pgsql/9.6/data/pg_log/postgresql-"
+        logger debug "Investigate the log file:: \
+        cat /var/lib/pgsql/9.6/pgstartup.log"
+        logger debug "Investigate the log file:: \
+        cat /var/lib/pgsql/9.6/data/pg_log/postgresql-"
     else
         logger info "PostgreSQL service was started."
     fi
@@ -95,24 +94,17 @@ start_postgres()
 
 change_ownership_sharedfs()
 {
-    logger info "Attempting to change ownership of ${SHARED_FS_WALS} directory to postgres"
+    logger info "Attempting to change ownership of ${SHARED_FS_WALS} directory\
+     to postgres"
     ${_CHOWN} postgres:postgres ${SHARED_FS_WALS}
-    RETVAL=$?
-    if [[ ${RETVAL} -ne 0 ]];
-    then
-        logger error "Failed to change ownership of ${SHARED_FS_WALS} directory to postgres"
-    else
-        logger info "Successfully changed ownership of ${SHARED_FS_WALS} directory to postgres"
-    fi
+    check_return_value "Attempting to change ownership of ${SHARED_FS_WALS} \
+    directory to postgres"
 
+    logger info "Attempting to change ownership of ${SHARED_FS_BACKUP} \
+    directory to postgres"
     ${_CHOWN} postgres:postgres ${SHARED_FS_BACKUP}
-    RETVAL=$?
-    if [[ ${RETVAL} -ne 0 ]];
-    then
-        logger error "Failed to change ownership of ${SHARED_FS_BACKUP} directory to postgres"
-    else
-        logger info "Successfully changed ownership of ${SHARED_FS_BACKUP} directory to postgres"
-    fi
+    check_return_value "Attempting to change ownership of ${SHARED_FS_BACKUP} \
+    directory to postgres"
 }
 
 #MAIN

@@ -1,7 +1,6 @@
 #!/bin/bash
 
 HOST_FOLLOWER=$1
-echo ${HOST_FOLLOWER}
 
 _CAT=/bin/cat
 _CHOWN=/bin/chown
@@ -102,10 +101,10 @@ start_postgres()
     if [[ ${RETVAL} -ne 0 ]];
     then
         logger error "Failed to start PostgreSQL service"
-        logger debug "Investigate the log file:: cat \
-        /var/lib/pgsql/9.6/pgstartup.log"
-        logger debug "Investigate the log file:: cat \
-        /var/lib/pgsql/9.6/data/pg_log/postgresql-"
+        logger debug "Investigate the log file:: \
+        cat /var/lib/pgsql/9.6/pgstartup.log"
+        logger debug "Investigate the log file:: \
+        cat /var/lib/pgsql/9.6/data/pg_log/postgresql-"
     else
         logger info "PostgreSQL service was started."
     fi
