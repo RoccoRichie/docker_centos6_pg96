@@ -49,6 +49,6 @@ RUN chown postgres:postgres recovery.conf
 
 RUN chmod +x create_db.sh create_replicator_role.sh generate_load.sh
 RUN chmod +x health_check.sh info_db.sh start_additional_services.sh
-RUN chmod +x start_postgres_follower.sh
+RUN chmod +x start_postgres_follower.sh backup_and_sync.sh
 
 CMD ["/bin/bash", "health_check.sh"]
