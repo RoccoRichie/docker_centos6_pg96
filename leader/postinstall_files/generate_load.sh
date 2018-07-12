@@ -25,5 +25,6 @@ done
 infoLog "Row List BEFORE Applying Load"
 get_row_list
 time apply_load
+sleep 1
 
 source info_db.sh

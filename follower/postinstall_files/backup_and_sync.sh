@@ -1,7 +1,6 @@
 #!/bin/bash
 
 HOST_LEADER=$1
-echo ${HOST_LEADER}
 
 _CAT=/bin/cat
 _CHMOD=/bin/chmod
@@ -118,18 +117,20 @@ unpack_backup()
 update_conf_files()
 {
     logger info "Attempting to append ${PGCONF} with ${NEW_CONF}"
-    ${_CAT} ${NEW_CONF} >> ${PGCONF}
+    ${_ECHO} -e "\nhot_standby = on" >> ${PGCONF}
     check_return_value "Attempting to append ${PGCONF} with ${NEW_CONF}"
 
-    logger info "Attempting to replace ${PGHBA} with ${NEW_HBA}"
-    ${_CAT} ${NEW_HBA} > ${PGHBA}
-    check_return_value "Attempting to replace ${PGHBA} with ${NEW_HBA}"
+    logger info "Attempting to add leader Host ${HOST_LEADER} to ${PGHBA}"
+    ${_ECHO} "host     replication     replicator      ${HOST_LEADER}/32\
+                 trust" >> ${PGHBA}
+    check_return_value "Attempting to add follower Host ${HOST_LEADER} \
+    to ${PGHBA}"
 }
 
 update_recovery_conf_with_Host()
 {
     logger info "Attempting to update ${RECOVER_CONF} with ${HOST_LEADER}"
-    echo -e "\nprimary_conninfo = 'host=${HOST_LEADER} user=${PG_REPLICATOR}'" \
+    ${_ECHO} -e "\nprimary_conninfo = 'host=${HOST_LEADER} user=${PG_REPLICATOR}'" \
     >> ${RECOVER_CONF}
     check_return_value "Attempting to update ${RECOVER_CONF} with ${HOST_LEADER}"
 }
@@ -155,6 +156,7 @@ start_stop_postgres stop
 backup_leader
 clear_follower_data
 unpack_backup
+update_conf_files
 update_recovery_conf_with_Host
 copy_recovery_file
 change_follower_permissions
