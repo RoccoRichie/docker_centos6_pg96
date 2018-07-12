@@ -116,7 +116,7 @@ unpack_backup()
 update_recovery_conf_with_Host()
 {
     logger info "Attempting to update ${RECOVER_CONF} with ${HOST_LEADER}"
-    echo "primary_conninfo = 'host=${HOST_LEADER} user=${PG_REPLICATOR}'" \
+    echo -e "\nprimary_conninfo = 'host=${HOST_LEADER} user=${PG_REPLICATOR}'" \
     >> ${RECOVER_CONF}
     check_return_value "Attempting to update ${RECOVER_CONF} with ${HOST_LEADER}"
 }
@@ -136,8 +136,8 @@ change_follower_permissions()
 }
 
 #MAIN
-start_rsyslog
 check_for_argument
+start_rsyslog
 start_stop_postgres stop
 backup_leader
 clear_follower_data

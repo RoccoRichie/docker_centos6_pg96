@@ -119,4 +119,3 @@ change_ownership_sharedfs()
 start_rsyslog
 change_ownership_sharedfs
 start_postgres
-source create_replicator_role.sh

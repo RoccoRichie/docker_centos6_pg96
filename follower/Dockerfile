@@ -6,7 +6,7 @@ ENV container docker
 VOLUME [ "/sys/fs/cgroup" ]
 
 # Open Ports in the Container
-EXPOSE 22 80 873 5432
+EXPOSE 22 80 873 5432 6432
 
 # Install additional Software
 # Issue with installing vim $ openssh, ignore checksum
@@ -49,6 +49,6 @@ RUN chown postgres:postgres recovery.conf
 
 RUN chmod +x create_db.sh create_replicator_role.sh generate_load.sh
 RUN chmod +x health_check.sh info_db.sh start_postgres_follower.sh
-RUN chmod +x backup_and_sync.sh
+RUN chmod +x backup_and_sync.sh tidy_up.sh
 
 CMD ["/bin/bash", "health_check.sh"]
