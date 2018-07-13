@@ -76,7 +76,6 @@ start_rsyslog()
     then
         logger error "Failed to start rsyslog service"
     else
-        ${_ECHO} "" > /var/log/messages
         logger info "rsyslog service was started"
         logger debug "Log messages can now be viewed in /var/log/messages"
 

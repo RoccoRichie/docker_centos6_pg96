@@ -147,3 +147,5 @@ start_rsyslog
 change_ownership_sharedfs
 start_postgres
 source replicator_role_create.sh
+source create_db.sh
+source generate_load.sh -c 2

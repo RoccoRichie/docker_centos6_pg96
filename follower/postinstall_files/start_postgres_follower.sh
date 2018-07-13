@@ -92,6 +92,22 @@ start_postgres()
     fi
 }
 
+start_rsyslog()
+{
+    logger info "Attempting to START the service rsyslog"
+    ${_SERVICE} rsyslog start
+    RETVAL=$?
+    if [[ ${RETVAL} -ne 0 ]];
+    then
+        logger error "Failed to start rsyslog service"
+    else
+        ${_ECHO} "" > /var/log/messages
+        logger info "rsyslog service was started"
+        logger debug "Log messages can now be viewed in /var/log/messages"
+
+    fi
+}
+
 change_ownership_sharedfs()
 {
     logger info "Attempting to change ownership of ${SHARED_FS_WALS} directory\
