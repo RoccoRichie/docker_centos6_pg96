@@ -3,7 +3,7 @@ version: '3'
 services:
   # Service No 1 - Postgres
   postgres_leader:
-    image: aintgriz/pg96_cos6_ha_leader:0.6
+    image: aintgriz/pg96_cos6_ha_leader:0.7
     ports:
       - '6432:5432'
     volumes:
@@ -13,7 +13,7 @@ services:
 
   # Service No 2 - Postgres
   postgres_follower:
-    image: aintgriz/pg96_cos6_ha_follower:0.6
+    image: aintgriz/pg96_cos6_ha_follower:0.7
     ports:
       - '7432:5432'
     volumes:

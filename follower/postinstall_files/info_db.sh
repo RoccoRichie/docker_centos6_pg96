@@ -21,6 +21,7 @@ function display_info()
     count_2=$(su - postgres -c "psql -qAt -U postgres -d pgloader_db -c 'SELECT COUNT(*) FROM test_table_2;'")
     cost_1=$(su - postgres -c "psql -qAt -U postgres -d pgloader_db -c 'EXPLAIN SELECT COUNT(*) FROM test_table_1;'")
     cost_2=$(su - postgres -c "psql -qAt -U postgres -d pgloader_db -c 'EXPLAIN SELECT COUNT(*) FROM test_table_2;'")
+    log_delay=$(su - postgres -c "psql -qAt -U postgres -d pgloader_db -c 'SELECT CASE WHEN pg_last_xlog_receive_location() = pg_last_xlog_replay_location() THEN 0 ELSE EXTRACT (EPOCH FROM now() - pg_last_xact_replay_timestamp()) END AS log_delay;'")
 
     ${_ECHO} "************************************************************************"
     ${_ECHO} "NUMBER OF ROWS"
@@ -47,6 +48,12 @@ function display_info()
     ${_ECHO} ""
     ${_ECHO} "Size of pgloader_db Databse::"
     ${_DU} ${BASE_DIR}${db_id}
+    ${_ECHO} ""
+
+    ${_ECHO} "************************************************************************"
+    ${_ECHO} "Log Delay"
+    ${_ECHO} "¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬¬"
+    ${_ECHO} "Log Delay:: ${log_delay}"
     ${_ECHO} "************************************************************************"
     ${_ECHO} ""
 }
