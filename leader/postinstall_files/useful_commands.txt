@@ -24,6 +24,9 @@ cat ha_hba.conf > /var/lib/pgsql/9.6/data/pg_hba.conf
 # Hostname
 hostname -I
 
+# Trigger Fail over
+echo "smart" > /backup_dir/pg_failover_trigger
+
 # Start-up log
 cat /var/lib/pgsql/9.6/pgstartup.log
 

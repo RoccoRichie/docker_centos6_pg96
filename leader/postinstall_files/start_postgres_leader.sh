@@ -6,6 +6,7 @@ _CAT=/bin/cat
 _CHOWN=/bin/chown
 _ECHO=/bin/echo
 _SERVICE="/sbin/service"
+_SLEEP=/bin/sleep
 _UNIX_LOGGER="/usr/bin/logger"
 
 APP_ID="PG_HA_LEADER"
@@ -146,6 +147,7 @@ check_for_argument
 start_rsyslog
 change_ownership_sharedfs
 start_postgres
+${_SLEEP} 2
 source replicator_role_create.sh
 source create_db.sh
 source generate_load.sh -c 2

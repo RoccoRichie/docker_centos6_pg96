@@ -24,6 +24,9 @@ cat ha_hba.conf > /var/lib/pgsql/9.6/data/pg_hba.conf
 # Hostname
 hostname -I
 
+# Trigger Fail over
+echo "smart" > /backup_dir/pg_failover_trigger
+
 # Start-up log
 cat /var/lib/pgsql/9.6/pgstartup.log
 
@@ -44,6 +47,9 @@ su - postgres -c "psql -U postgres -c '\l'"
 
 # PSQL Query - Show all users
 su - postgres -c "psql -U postgres -c '\du'"
+
+# In recovery
+su - postgres -c "psql -U postgres -qAt -c 'select pg_is_in_recovery();'"
 
 # PSQL Query - select numbers of rows
 su - postgres -c "psql -U postgres -d pgloader_db -c\

@@ -9,7 +9,7 @@ DB="pgloader_db"
 BASE_DIR=/var/lib/pgsql/9.6/data/base/
 
 
-function display_info()
+display_info()
 {
     ${_CLEAR}
     ${_ECHO} ""

@@ -4,7 +4,7 @@ source common_library
 
 COUNTER=100
 
-function apply_load()
+apply_load()
 {
     for ((i=0; i<=$COUNTER; i++));
     do
