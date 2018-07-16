@@ -147,7 +147,7 @@ check_for_argument
 start_rsyslog
 change_ownership_sharedfs
 start_postgres
-${_SLEEP} 2
+${_SLEEP} 5
 source replicator_role_create.sh
 source create_db.sh
 source generate_load.sh -c 2
